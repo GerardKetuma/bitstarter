@@ -56,13 +56,16 @@ var checkHtmlFile = function(htmlfile, checksfile) {
     return out;
 };
 
-var urlToFile = function(url) {
+var urlToFile = function(url, check) {
   rest.get(url).on('complete', function(result) {
     if (result instanceof Error){
       console.log('Error retrieving the file from the url specified');
     }
     else {
-      return result;
+      fs.writeFileSync('urlContents.html', result);
+      var help = checkHtmlFile('urlContents.html', check);
+      var outJson = JSON.stringify(help, null, 4);
+      console.log(outJson);
     }
   });
 };
@@ -81,13 +84,13 @@ if(require.main == module) {
         .parse(process.argv);
 
     if (program.url) {
-      var checkJson = checkHtmlFile(urlToFile(program.url), program.checks);
+      var checkJson = urlToFile(program.url, program.checks);
     }
     else {
       var checkJson = checkHtmlFile(program.file, program.checks);
+      var outJson = JSON.stringify(checkJson, null, 4);
+      console.log(outJson);
     }
-    var outJson = JSON.stringify(checkJson, null, 4);
-    console.log(outJson);
 } else {
     exports.checkHtmlFile = checkHtmlFile;
 }
